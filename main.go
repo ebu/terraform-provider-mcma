@@ -8,6 +8,6 @@ import (
 
 func main() {
 	plugin.Serve(&plugin.ServeOpts{
-		ProviderFunc: mcma.Provider,:wq
+		ProviderFunc: mcma.Provider,
 	})
 }

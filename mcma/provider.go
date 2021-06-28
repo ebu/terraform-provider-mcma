@@ -30,6 +30,7 @@ func Provider() *schema.Provider {
 		},
 		ResourcesMap:   map[string]*schema.Resource{
 			"service": resourceService(),
+			"job_profile": resourceJobProfile(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{},
 		ConfigureContextFunc: providerConfigure,

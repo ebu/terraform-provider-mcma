@@ -2,8 +2,10 @@ package mcma
 
 import (
 	"context"
-	"github.com/hashicorp/terraform-plugin-sdk/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"reflect"
+	"time"
 
 	mcmaclient "github.com/ebu/mcma-libraries-go/client"
 	mcmamodel "github.com/ebu/mcma-libraries-go/model"
@@ -11,83 +13,87 @@ import (
 
 func resourceJobProfile() *schema.Resource {
 	return &schema.Resource{
+		Description: "Job profile data registered in an MCMA Service Registry",
+
 		CreateContext: resourceJobProfileCreate,
 		ReadContext:   resourceJobProfileRead,
 		UpdateContext: resourceJobProfileUpdate,
 		DeleteContext: resourceJobProfileDelete,
 
 		Schema: map[string]*schema.Schema{
-			"@type": {
-				Type:     schema.TypeString,
-				Computed: true,
+			"type": {
+				Type:        schema.TypeString,
+				Description: "The MCMA type of resource. This value will always be 'Service'.",
+				Computed:    true,
 			},
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The ID of the job profile. MCMA IDs are always absolute urls.",
+				Computed:    true,
 			},
 			"date_created": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The date and time at which the job profile data was created.",
+				Computed:    true,
 			},
 			"date_modified": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The date and time at which the job profile data was last modified.",
+				Computed:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: false,
+				Type:        schema.TypeString,
+				Description: "The name of the job profile.",
+				Required:    true,
 			},
-			"input_parameters": {
-				Type:     schema.TypeList,
-				Required: false,
+			"input_parameter": {
+				Type:        schema.TypeSet,
+				Description: "A list of input parameters (name and type) that must be provided when running a job for this profile.",
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"parameter_name": {
-							Type:     schema.TypeString,
-							Optional: false,
+						"name": {
+							Type:        schema.TypeString,
+							Description: "The name of the input parameter.",
+							Required:    true,
 						},
-						"parameter_value": {
-							Type:     schema.TypeString,
-							Optional: false,
+						"type": {
+							Type:        schema.TypeString,
+							Description: "The type of the input parameter. Should specify an MCMA resource or primitive type.",
+							Required:    true,
+						},
+						"optional": {
+							Type:        schema.TypeBool,
+							Description: "Flag indicating if this input parameter must be provided or not",
+							Optional:    true,
+							Default:     false,
 						},
 					},
 				},
 			},
-			"output_parameters": {
-				Type:     schema.TypeList,
-				Required: false,
+			"output_parameter": {
+				Type:        schema.TypeSet,
+				Description: "A list of output parameters (name and type) that will be set on the job when the service has finished.",
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"parameter_name": {
-							Type:     schema.TypeString,
-							Optional: false,
+						"name": {
+							Type:        schema.TypeString,
+							Description: "The name of the output parameter.",
+							Required:    true,
 						},
-						"parameter_value": {
-							Type:     schema.TypeString,
-							Optional: false,
-						},
-					},
-				},
-			},
-			"optional_input_parameters": {
-				Type:     schema.TypeList,
-				Required: false,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"parameter_name": {
-							Type:     schema.TypeString,
-							Optional: false,
-						},
-						"parameter_value": {
-							Type:     schema.TypeString,
-							Optional: false,
+						"type": {
+							Type:        schema.TypeString,
+							Description: "The type of the output parameter. Should specify an MCMA resource or primitive type.",
+							Required:    true,
 						},
 					},
 				},
 			},
 			"custom_properties": {
-				Type:     schema.TypeMap,
-				Required: false,
+				Type:        schema.TypeMap,
+				Description: "A collection of key-value pairs specifying additional properties for the job profile.",
+				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -98,29 +104,26 @@ func resourceJobProfile() *schema.Resource {
 
 func getJobProfileFromResourceData(d *schema.ResourceData) mcmamodel.JobProfile {
 	var inputParameters []mcmamodel.JobParameter
-	for _, p := range d.Get("input_parameters").([]interface{}) {
-		inputParameter := p.(map[string]interface{})
-		inputParameters = append(inputParameters, mcmamodel.JobParameter{
-			ParameterType: inputParameter["parameter_type"].(string),
-			ParameterName: inputParameter["parameter_name"].(string),
-		})
+	var optionalInputParameters []mcmamodel.JobParameter
+	for _, raw := range d.Get("input_parameter").(*schema.Set).List() {
+		pMap := raw.(map[string]interface{})
+		inputParameter := mcmamodel.JobParameter{
+			ParameterType: pMap["type"].(string),
+			ParameterName: pMap["name"].(string),
+		}
+		if pMap["optional"].(bool) {
+			optionalInputParameters = append(optionalInputParameters, inputParameter)
+		} else {
+			inputParameters = append(inputParameters, inputParameter)
+		}
 	}
 
 	var outputParameters []mcmamodel.JobParameter
-	for _, p := range d.Get("output_parameters").([]interface{}) {
+	for _, p := range d.Get("output_parameter").(*schema.Set).List() {
 		outputParameter := p.(map[string]interface{})
 		outputParameters = append(outputParameters, mcmamodel.JobParameter{
-			ParameterType: outputParameter["parameter_type"].(string),
-			ParameterName: outputParameter["parameter_name"].(string),
-		})
-	}
-
-	var optionalInputParameters []mcmamodel.JobParameter
-	for _, p := range d.Get("optional_input_parameters").([]interface{}) {
-		optionalInputParameter := p.(map[string]interface{})
-		optionalInputParameters = append(optionalInputParameters, mcmamodel.JobParameter{
-			ParameterType: optionalInputParameter["parameter_type"].(string),
-			ParameterName: optionalInputParameter["parameter_name"].(string),
+			ParameterType: outputParameter["type"].(string),
+			ParameterName: outputParameter["name"].(string),
 		})
 	}
 
@@ -138,7 +141,7 @@ func resourceJobProfileRead(_ context.Context, d *schema.ResourceData, m interfa
 	resourceManager := m.(*mcmaclient.ResourceManager)
 
 	jobProfileId := d.Id()
-	resource, err := resourceManager.Get("JobProfile", jobProfileId)
+	resource, err := resourceManager.Get(reflect.TypeOf(mcmamodel.JobProfile{}), jobProfileId)
 	if err != nil {
 		return diag.Errorf("error getting job profile with id %s: %s", jobProfileId, err)
 	}
@@ -147,42 +150,39 @@ func resourceJobProfileRead(_ context.Context, d *schema.ResourceData, m interfa
 
 	_ = d.Set("type", jobProfile.Type)
 	_ = d.Set("id", jobProfile.Id)
-	_ = d.Set("date_created", jobProfile.DateCreated)
-	_ = d.Set("date_modified", jobProfile.DateModified)
+	_ = d.Set("date_created", jobProfile.DateCreated.Format(time.RFC3339))
+	_ = d.Set("date_modified", jobProfile.DateModified.Format(time.RFC3339))
 	_ = d.Set("name", jobProfile.Name)
 	_ = d.Set("custom_properties", jobProfile.CustomProperties)
 
 	var inputParameters []map[string]interface{}
 	for _, inputParameter := range jobProfile.InputParameters {
 		p := make(map[string]interface{})
-		p["parameter_type"] = inputParameter.ParameterType
-		p["parameter_name"] = inputParameter.ParameterName
+		p["type"] = inputParameter.ParameterType
+		p["name"] = inputParameter.ParameterName
+		p["optional"] = false
 		inputParameters = append(inputParameters, p)
 	}
-	if err = d.Set("input_parameters", inputParameters); err != nil {
-		return diag.Errorf("error setting input_parameters for job profile with id %s: %s", jobProfileId, err)
+	for _, optionalInputParameter := range jobProfile.OptionalInputParameters {
+		p := make(map[string]interface{})
+		p["type"] = optionalInputParameter.ParameterType
+		p["name"] = optionalInputParameter.ParameterName
+		p["optional"] = true
+		inputParameters = append(inputParameters, p)
+	}
+	if err = d.Set("input_parameter", inputParameters); err != nil {
+		return diag.Errorf("error setting input_parameter for job profile with id %s: %s", jobProfileId, err)
 	}
 
 	var outputParameters []map[string]interface{}
 	for _, outputParameter := range jobProfile.OutputParameters {
 		p := make(map[string]interface{})
-		p["parameter_type"] = outputParameter.ParameterType
-		p["parameter_name"] = outputParameter.ParameterName
+		p["type"] = outputParameter.ParameterType
+		p["name"] = outputParameter.ParameterName
 		outputParameters = append(outputParameters, p)
 	}
-	if err = d.Set("output_parameters", outputParameters); err != nil {
-		return diag.Errorf("error setting output_parameters for job profile with id %s: %s", jobProfileId, err)
-	}
-
-	var optionalInputParameters []map[string]interface{}
-	for _, optionalInputParameter := range jobProfile.OptionalInputParameters {
-		p := make(map[string]interface{})
-		p["parameter_type"] = optionalInputParameter.ParameterType
-		p["parameter_name"] = optionalInputParameter.ParameterName
-		optionalInputParameters = append(optionalInputParameters, p)
-	}
-	if err = d.Set("optional_input_parameters", optionalInputParameters); err != nil {
-		return diag.Errorf("error setting optional_input_parameters for job profile with id %s: %s", jobProfileId, err)
+	if err = d.Set("output_parameter", outputParameters); err != nil {
+		return diag.Errorf("error setting output_parameter for job profile with id %s: %s", jobProfileId, err)
 	}
 
 	return diag.Diagnostics{}
@@ -190,7 +190,6 @@ func resourceJobProfileRead(_ context.Context, d *schema.ResourceData, m interfa
 
 func resourceJobProfileCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	resourceManager := m.(*mcmaclient.ResourceManager)
-
 	jobProfile := getJobProfileFromResourceData(d)
 	createdResource, err := resourceManager.Create(jobProfile)
 	if err != nil {
@@ -220,7 +219,7 @@ func resourceJobProfileUpdate(ctx context.Context, d *schema.ResourceData, m int
 func resourceJobProfileDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	resourceManager := m.(*mcmaclient.ResourceManager)
 
-	err := resourceManager.Delete("JobProfile", d.Id())
+	err := resourceManager.Delete(reflect.TypeOf(mcmamodel.JobProfile{}), d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}

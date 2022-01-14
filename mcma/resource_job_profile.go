@@ -23,7 +23,7 @@ func resourceJobProfile() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"type": {
 				Type:        schema.TypeString,
-				Description: "The MCMA type of resource. This value will always be 'Service'.",
+				Description: "The MCMA type of resource. This value will always be 'JobProfile'.",
 				Computed:    true,
 			},
 			"id": {

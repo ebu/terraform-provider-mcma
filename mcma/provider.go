@@ -34,6 +34,7 @@ func Provider() *schema.Provider {
 		ResourcesMap: map[string]*schema.Resource{
 			"mcma_service":     resourceService(),
 			"mcma_job_profile": resourceJobProfile(),
+			"mcma_resource":    resourceMcmaResource(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{},
 		ConfigureContextFunc: func(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {

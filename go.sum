@@ -92,8 +92,8 @@ github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ3
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/ebu/mcma-libraries-go v0.0.0-20220114172455-7794b74f202f h1:K4WVg9+WVgQbOILBSfYjtd0MyvaB+RoOvzAJSWJKIlM=
-github.com/ebu/mcma-libraries-go v0.0.0-20220114172455-7794b74f202f/go.mod h1:RnT/sTbg7ICp6NHDxyj/xX9xI+bqbcm9SUkPTIJnqs4=
+github.com/ebu/mcma-libraries-go v0.0.0-20220114184527-61e8ced732d6 h1:nIMwMFpLbmttc9NM1/GKiRvWZZoNOZvkLe/knYxYYKg=
+github.com/ebu/mcma-libraries-go v0.0.0-20220114184527-61e8ced732d6/go.mod h1:RnT/sTbg7ICp6NHDxyj/xX9xI+bqbcm9SUkPTIJnqs4=
 github.com/emirpasic/gods v1.12.0 h1:QAUIPSaCu4G+POclxeqb3F+WPpdKqFGlw36+yOzGlrg=
 github.com/emirpasic/gods v1.12.0/go.mod h1:YfzfFFoVP/catgzJb4IKIqXjX78Ha8FMSDh3ymbK86o=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=

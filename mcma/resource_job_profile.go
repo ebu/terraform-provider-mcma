@@ -145,6 +145,9 @@ func resourceJobProfileRead(_ context.Context, d *schema.ResourceData, m interfa
 	if err != nil {
 		return diag.Errorf("error getting job profile with id %s: %s", jobProfileId, err)
 	}
+	if resource == nil {
+		return diag.Errorf("job profile with id %s not found", jobProfileId)
+	}
 
 	jobProfile := resource.(mcmamodel.JobProfile)
 

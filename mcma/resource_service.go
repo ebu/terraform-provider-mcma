@@ -162,11 +162,12 @@ func getServiceFromResourceData(d *schema.ResourceData) mcmamodel.Service {
 	var resources []mcmamodel.ResourceEndpoint
 	for _, r := range d.Get("resource").(*schema.Set).List() {
 		resource := r.(map[string]interface{})
+		authType := resource["auth_type"].(string)
 		resources = append(resources, mcmamodel.ResourceEndpoint{
 			Type:         "ResourceEndpoint",
 			ResourceType: resource["resource_type"].(string),
 			HttpEndpoint: resource["http_endpoint"].(string),
-			AuthType:     resource["auth_type"].(string),
+			AuthType:     &authType,
 			AuthContext:  resource["auth_context"].(string),
 		})
 	}
@@ -216,6 +217,9 @@ func resourceServiceRead(_ context.Context, d *schema.ResourceData, m interface{
 	if err != nil {
 		return diag.Errorf("error getting service with id %s: %s", serviceId, err)
 	}
+	if resource == nil {
+		return diag.Errorf("service with id %s not found", serviceId)
+	}
 
 	service := resource.(mcmamodel.Service)
 
@@ -232,9 +236,6 @@ func resourceServiceRead(_ context.Context, d *schema.ResourceData, m interface{
 	for _, resourceEndpoint := range service.Resources {
 		r := make(map[string]interface{})
 		r["type"] = "ResourceEndpoint"
-		r["id"] = resourceEndpoint.Id
-		r["date_created"] = resourceEndpoint.DateCreated.Format(time.RFC3339)
-		r["date_modified"] = resourceEndpoint.DateModified.Format(time.RFC3339)
 		r["resource_type"] = resourceEndpoint.ResourceType
 		r["http_endpoint"] = resourceEndpoint.HttpEndpoint
 		r["auth_type"] = resourceEndpoint.AuthType

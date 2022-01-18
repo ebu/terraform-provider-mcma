@@ -63,6 +63,9 @@ func resourceMcmaResourceRead(_ context.Context, d *schema.ResourceData, m inter
 	if err != nil {
 		return diag.Errorf("error getting resource of type %s with id %s: %s", resourceType, resourceId, err)
 	}
+	if resource == nil {
+		return diag.Errorf("resource with type %s and id %s not found", resourceType, resourceId)
+	}
 
 	_ = d.Set("type", resource["@type"])
 	delete(resource, "@type")

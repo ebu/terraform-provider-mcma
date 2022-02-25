@@ -16,8 +16,8 @@ func TestAccMcmaService_basic(t *testing.T) {
 	var service mcmamodel.Service
 	profileName := acctest.RandStringFromCharSet(5, acctest.CharSetAlpha)
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckMcmaServiceDestroy,
 		),
@@ -61,7 +61,6 @@ func testAccountMcmaService(serviceName string) string {
 resource "mcma_service" "service_%s" {
   name = "%s"
   auth_type = "AWS4"
-  auth_context = "{ \"accessKey\": \"testkey\", \"secretKey\": \"testkey\", \"region\": \"us-east-1\" }"
   job_type = "AmeJob"
   resource {
 	resource_type = "JobAssignment"
@@ -71,13 +70,6 @@ resource "mcma_service" "service_%s" {
 	resource_type = "JobAssignment"
 	http_endpoint = "https://some.endpoint.com/api/job-assignments"
 	auth_type = "JWT"
-    auth_context = "{ \"clientId\": \"some-client\" }"
-  }
-  input_location {
-    url = "https://bucket.s3.amazonaws.com/prefix/input"
-  }
-  output_location {
-    url = "https://bucket.s3.amazonaws.com/prefix/output"
   }
   job_profile_ids = [
      "https://service.registry.com/api/job-profiles/12345",

@@ -12,7 +12,7 @@ import (
 
 func resourceMcmaResource() *schema.Resource {
 	return &schema.Resource{
-		Description: "An arbitrary MCMA resource managed through a REST API",
+		Description: "An arbitrary MCMA resource managed through a service registered in the MCMA service registry",
 
 		CreateContext: resourceMcmaResourceCreate,
 		ReadContext:   resourceMcmaResourceRead,

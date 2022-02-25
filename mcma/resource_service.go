@@ -51,11 +51,6 @@ func resourceService() *schema.Resource {
 				Description: "The type of authentication the service uses, e.g. AWS4",
 				Optional:    true,
 			},
-			"auth_context": {
-				Type:        schema.TypeString,
-				Description: "Context data for the authentication type used by the service. For instance, in the case of AWS authentication, this would contain the access and secret keys.",
-				Optional:    true,
-			},
 			"job_type": {
 				Type:        schema.TypeString,
 				Description: "The type of job the service processes, if any. Most MCMA services will handle some kind of job, but not all of them have to.",
@@ -102,11 +97,6 @@ func resourceService() *schema.Resource {
 							Description: "The type of authentication expected for this endpoint. This should only be specified if it is different than the auth type specified on the service.",
 							Optional:    true,
 						},
-						"auth_context": {
-							Type:        schema.TypeString,
-							Description: "Context data for the authentication type used by the endpoint. This should only be specified if it is different than the auth context specified on the service.",
-							Optional:    true,
-						},
 					},
 				},
 			},
@@ -116,42 +106,6 @@ func resourceService() *schema.Resource {
 				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
-				},
-			},
-			"input_location": {
-				Type:        schema.TypeSet,
-				Description: "The list of input locations of which the service is aware. This provides the consumer with a list of places they can place content to be processed by the service.",
-				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"type": {
-							Type:        schema.TypeString,
-							Description: "The MCMA type of resource. This value will always be 'Locator'.",
-							Computed:    true,
-						},
-						"url": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-					},
-				},
-			},
-			"output_location": {
-				Type:        schema.TypeSet,
-				Description: "The list of output locations of which the service is aware. This provides the consumer with a list of places they can retrieve content after it has been processed by the service.",
-				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"type": {
-							Type:        schema.TypeString,
-							Description: "The MCMA type of resource. This value will always be 'Locator'.",
-							Computed:    true,
-						},
-						"url": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-					},
 				},
 			},
 		},
@@ -168,25 +122,6 @@ func getServiceFromResourceData(d *schema.ResourceData) mcmamodel.Service {
 			ResourceType: resource["resource_type"].(string),
 			HttpEndpoint: resource["http_endpoint"].(string),
 			AuthType:     &authType,
-			AuthContext:  resource["auth_context"].(string),
-		})
-	}
-
-	var inputLocations []mcmamodel.Locator
-	for _, r := range d.Get("input_location").(*schema.Set).List() {
-		inputLocation := r.(map[string]interface{})
-		inputLocations = append(inputLocations, mcmamodel.Locator{
-			Type: "Locator",
-			Url:  inputLocation["url"].(string),
-		})
-	}
-
-	var outputLocations []mcmamodel.Locator
-	for _, r := range d.Get("output_location").(*schema.Set).List() {
-		outputLocation := r.(map[string]interface{})
-		outputLocations = append(outputLocations, mcmamodel.Locator{
-			Type: "Locator",
-			Url:  outputLocation["url"].(string),
 		})
 	}
 
@@ -197,15 +132,12 @@ func getServiceFromResourceData(d *schema.ResourceData) mcmamodel.Service {
 	}
 
 	return mcmamodel.Service{
-		Type:            "Service",
-		Name:            d.Get("name").(string),
-		AuthType:        d.Get("auth_type").(string),
-		AuthContext:     d.Get("auth_context").(string),
-		JobType:         d.Get("job_type").(string),
-		JobProfileIds:   jobProfileIds,
-		Resources:       resources,
-		InputLocations:  inputLocations,
-		OutputLocations: outputLocations,
+		Type:          "Service",
+		Name:          d.Get("name").(string),
+		AuthType:      d.Get("auth_type").(string),
+		JobType:       d.Get("job_type").(string),
+		JobProfileIds: jobProfileIds,
+		Resources:     resources,
 	}
 }
 
@@ -229,7 +161,6 @@ func resourceServiceRead(_ context.Context, d *schema.ResourceData, m interface{
 	_ = d.Set("date_modified", service.DateModified.Format(time.RFC3339))
 	_ = d.Set("name", service.Name)
 	_ = d.Set("auth_type", service.AuthType)
-	_ = d.Set("auth_context", service.AuthContext)
 	_ = d.Set("job_profile_ids", service.JobProfileIds)
 
 	var resources []map[string]interface{}
@@ -239,33 +170,10 @@ func resourceServiceRead(_ context.Context, d *schema.ResourceData, m interface{
 		r["resource_type"] = resourceEndpoint.ResourceType
 		r["http_endpoint"] = resourceEndpoint.HttpEndpoint
 		r["auth_type"] = resourceEndpoint.AuthType
-		r["auth_context"] = resourceEndpoint.AuthContext
 		resources = append(resources, r)
 	}
 	if err = d.Set("resource", resources); err != nil {
 		return diag.Errorf("error setting resources for service with id %s: %s", serviceId, err)
-	}
-
-	var inputLocations []map[string]interface{}
-	for _, inputLocation := range service.InputLocations {
-		l := make(map[string]interface{})
-		l["type"] = "Locator"
-		l["url"] = inputLocation.Url
-		inputLocations = append(inputLocations, l)
-	}
-	if err = d.Set("input_location", inputLocations); err != nil {
-		return diag.Errorf("error setting input_locations for service with id %s: %s", serviceId, err)
-	}
-
-	var outputLocations []map[string]interface{}
-	for _, inputLocation := range service.OutputLocations {
-		l := make(map[string]interface{})
-		l["type"] = "Locator"
-		l["url"] = inputLocation.Url
-		outputLocations = append(outputLocations, l)
-	}
-	if err = d.Set("output_location", outputLocations); err != nil {
-		return diag.Errorf("error setting output_locations for service with id %s: %s", serviceId, err)
 	}
 
 	return diag.Diagnostics{}

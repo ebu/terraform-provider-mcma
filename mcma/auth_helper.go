@@ -12,7 +12,7 @@ import (
 func GetAuthenticator(authType string, auth map[string]interface{}) (mcma.Authenticator, diag.Diagnostics) {
 	var authData map[string]interface{}
 	if ad, found := auth["data"]; found {
-		authData = *ad.(*map[string]interface{})
+		authData = ad.(map[string]interface{})
 	}
 
 	switch strings.ToLower(authType) {

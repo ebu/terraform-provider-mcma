@@ -15,21 +15,30 @@ import (
 func TestAccMcmaService_basic(t *testing.T) {
 	var service mcmamodel.Service
 	profileName := acctest.RandStringFromCharSet(5, acctest.CharSetAlpha)
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		CheckDestroy: resource.ComposeTestCheckFunc(
-			testAccCheckMcmaServiceDestroy,
-		),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccountMcmaService(profileName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckServiceExists("mcma_service.service_"+profileName, &service),
-				),
+	createTestCase := func(providerConfig string) resource.TestCase {
+		return resource.TestCase{
+			Providers: testAccProviders,
+			CheckDestroy: resource.ComposeTestCheckFunc(
+				testAccCheckMcmaServiceDestroy,
+			),
+			Steps: []resource.TestStep{
+				{
+					Config: testAccountMcmaService(profileName, providerConfig),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckServiceExists("mcma_service.service_"+profileName, &service),
+					),
+				},
+				{
+					Config: testAccountMcmaService_updatedEndpoint(profileName, providerConfig),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckServiceExists("mcma_service.service_"+profileName, &service),
+					),
+				},
 			},
-		},
-	})
+		}
+	}
+	resource.Test(t, createTestCase(getKubernetesProviderConfigFromEnvVars()))
+	resource.Test(t, createTestCase(getAwsProfileProviderConfigFromEnvVars()))
 }
 
 func testAccCheckMcmaServiceDestroy(s *terraform.State) error {
@@ -56,8 +65,10 @@ func testAccCheckMcmaServiceDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccountMcmaService(serviceName string) string {
+func testAccountMcmaService(serviceName string, providerConfig string) string {
 	return fmt.Sprintf(`
+%s
+
 resource "mcma_service" "service_%s" {
   name = "%s"
   auth_type = "AWS4"
@@ -76,7 +87,32 @@ resource "mcma_service" "service_%s" {
      "https://service.registry.com/api/job-profiles/67890"
   ]
 }
-`, serviceName, serviceName)
+`, providerConfig, serviceName, serviceName)
+}
+
+func testAccountMcmaService_updatedEndpoint(serviceName string, providerConfig string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "mcma_service" "service_%s" {
+  name = "%s"
+  auth_type = "AWS4"
+  job_type = "AmeJob"
+  resource {
+	resource_type = "JobAssignment"
+	http_endpoint = "https://some.endpoint.com/api/job-assignments"
+  }
+  resource {
+	resource_type = "JobAssignment"
+	http_endpoint = "https://some.updated-endpoint.com/api/job-assignments"
+	auth_type = "JWT"
+  }
+  job_profile_ids = [
+     "https://service.registry.com/api/job-profiles/12345",
+     "https://service.registry.com/api/job-profiles/67890"
+  ]
+}
+`, providerConfig, serviceName, serviceName)
 }
 
 func testAccCheckServiceExists(resourceName string, service *mcmamodel.Service) resource.TestCheckFunc {

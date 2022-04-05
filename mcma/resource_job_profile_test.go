@@ -15,21 +15,24 @@ import (
 func TestAccMcmaJobProfile_basic(t *testing.T) {
 	var jobProfile mcmamodel.JobProfile
 	profileName := acctest.RandStringFromCharSet(5, acctest.CharSetAlpha)
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: resource.ComposeTestCheckFunc(
-			testAccCheckMcmaJobProfileDestroy,
-		),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccountMcmaJobProfile(profileName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckJobProfileExists("mcma_job_profile.job_profile_"+profileName, &jobProfile),
-				),
+	createTestCase := func(providerConfig string) resource.TestCase {
+		return resource.TestCase{
+			Providers: testAccProviders,
+			CheckDestroy: resource.ComposeTestCheckFunc(
+				testAccCheckMcmaJobProfileDestroy,
+			),
+			Steps: []resource.TestStep{
+				{
+					Config: testAccountMcmaJobProfile(profileName, providerConfig),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckJobProfileExists("mcma_job_profile.job_profile_"+profileName, &jobProfile),
+					),
+				},
 			},
-		},
-	})
+		}
+	}
+	resource.Test(t, createTestCase(getKubernetesProviderConfigFromEnvVars()))
+	resource.Test(t, createTestCase(getAwsProfileProviderConfigFromEnvVars()))
 }
 
 func testAccCheckMcmaJobProfileDestroy(s *terraform.State) error {
@@ -56,8 +59,10 @@ func testAccCheckMcmaJobProfileDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccountMcmaJobProfile(profileName string) string {
+func testAccountMcmaJobProfile(profileName string, providerConfig string) string {
 	return fmt.Sprintf(`
+%s
+
 resource "mcma_job_profile" "job_profile_%s" {
   name = "%s"
   input_parameter {
@@ -82,7 +87,7 @@ resource "mcma_job_profile" "job_profile_%s" {
 	customprop2 = "customprop2val"
   }
 }
-`, profileName, profileName)
+`, providerConfig, profileName, profileName)
 }
 
 func testAccCheckJobProfileExists(resourceName string, jobProfile *mcmamodel.JobProfile) resource.TestCheckFunc {

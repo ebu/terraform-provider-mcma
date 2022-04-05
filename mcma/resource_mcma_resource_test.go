@@ -13,21 +13,23 @@ import (
 func TestAccMcmaResource_basic(t *testing.T) {
 	resourceName := acctest.RandStringFromCharSet(5, acctest.CharSetAlpha)
 	var resourceMap map[string]interface{}
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		CheckDestroy: resource.ComposeTestCheckFunc(
-			testAccCheckMcmaResourceDestroy,
-		),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccountMcmaResource(resourceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMcmaResourceExists("mcma_resource.bm_content_"+resourceName, &resourceMap),
-				),
+	createTestCase := func(providerConfig string) resource.TestCase {
+		return resource.TestCase{
+			Providers: testAccProviders,
+			CheckDestroy: resource.ComposeTestCheckFunc(
+				testAccCheckMcmaResourceDestroy,
+			),
+			Steps: []resource.TestStep{
+				{
+					Config: testAccountMcmaResource(resourceName, providerConfig),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckMcmaResourceExists("mcma_resource.bm_content_"+resourceName, &resourceMap),
+					),
+				},
 			},
-		},
-	})
+		}
+	}
+	resource.Test(t, createTestCase(getAwsProfileProviderConfigFromEnvVars()))
 }
 
 func testAccCheckMcmaResourceDestroy(s *terraform.State) error {
@@ -54,8 +56,10 @@ func testAccCheckMcmaResourceDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccountMcmaResource(resourceName string) string {
+func testAccountMcmaResource(resourceName string, providerConfig string) string {
 	return fmt.Sprintf(`
+%s
+
 resource "mcma_resource" "bm_content_%s" {
   type = "BMContent"
   resource_json = jsonencode({
@@ -65,7 +69,7 @@ resource "mcma_resource" "bm_content_%s" {
 	}
   })
 }
-`, resourceName, resourceName)
+`, providerConfig, resourceName, resourceName)
 }
 
 func testAccCheckMcmaResourceExists(resourceName string, mcmaResource *map[string]interface{}) resource.TestCheckFunc {

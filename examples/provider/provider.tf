@@ -1,10 +1,23 @@
+# No auth
 provider "mcma" {
-  url = "https://service-registry-example.mcma.io/services"
-  auth {
-    type = "AWS4"
-    data = {
-      accessKey = var.access_key
-      secretKey = var.secret_key
-    }
+  services_url = "https://service-registry-example.mcma.io/api/services"
+}
+
+# AWS auth with profile
+provider "mcma" {
+  services_url = "https://service-registry-example.mcma.io/api/services"
+  aws4_auth {
+    region  = "us-east-1"
+    profile = "myprofile"
+  }
+}
+
+# AWS auth with keys
+provider "mcma" {
+  services_url = "https://service-registry-example.mcma.io/api/services"
+  aws4_auth {
+    region     = "us-east-1"
+    access_key = "accesskey"
+    secret_key = "secretkey"
   }
 }

@@ -47,32 +47,32 @@ resource "mcma_job_profile" "example" {
 
 ### Required
 
-- **name** (String) The name of the job profile.
+- `name` (String) The name of the job profile.
 
 ### Optional
 
-- **custom_properties** (Map of String) A collection of key-value pairs specifying additional properties for the job profile.
-- **input_parameter** (Block Set) A list of input parameters (name and type) that must be provided when running a job for this profile. (see [below for nested schema](#nestedblock--input_parameter))
-- **output_parameter** (Block Set) A list of output parameters (name and type) that will be set on the job when the service has finished. (see [below for nested schema](#nestedblock--output_parameter))
+- `custom_properties` (Map of String) A collection of key-value pairs specifying additional properties for the job profile.
+- `input_parameter` (Block Set) A list of input parameters (name and type) that must be provided when running a job for this profile. (see [below for nested schema](#nestedblock--input_parameter))
+- `output_parameter` (Block Set) A list of output parameters (name and type) that will be set on the job when the service has finished. (see [below for nested schema](#nestedblock--output_parameter))
 
 ### Read-Only
 
-- **date_created** (String) The date and time at which the job profile data was created.
-- **date_modified** (String) The date and time at which the job profile data was last modified.
-- **id** (String) The ID of the job profile. MCMA IDs are always absolute urls.
-- **type** (String) The MCMA type of resource. This value will always be 'JobProfile'.
+- `date_created` (String) The date and time at which the job profile data was created.
+- `date_modified` (String) The date and time at which the job profile data was last modified.
+- `id` (String) The ID of the job profile. MCMA IDs are always absolute urls.
+- `type` (String) The MCMA type of resource. This value will always be 'JobProfile'.
 
 <a id="nestedblock--input_parameter"></a>
 ### Nested Schema for `input_parameter`
 
 Required:
 
-- **name** (String) The name of the input parameter.
-- **type** (String) The type of the input parameter. Should specify an MCMA resource or primitive type.
+- `name` (String) The name of the input parameter.
+- `type` (String) The type of the input parameter. Should specify an MCMA resource or primitive type.
 
 Optional:
 
-- **optional** (Boolean) Flag indicating if this input parameter must be provided or not
+- `optional` (Boolean) Flag indicating if this input parameter must be provided or not
 
 
 <a id="nestedblock--output_parameter"></a>
@@ -80,7 +80,7 @@ Optional:
 
 Required:
 
-- **name** (String) The name of the output parameter.
-- **type** (String) The type of the output parameter. Should specify an MCMA resource or primitive type.
+- `name` (String) The name of the output parameter.
+- `type` (String) The type of the output parameter. Should specify an MCMA resource or primitive type.
 
 

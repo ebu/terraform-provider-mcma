@@ -40,39 +40,39 @@ resource "mcma_service" "example" {
 
 ### Required
 
-- **name** (String) The name of the service
-- **resource** (Block Set, Min: 1) (see [below for nested schema](#nestedblock--resource))
+- `name` (String) The name of the service
+- `resource` (Block Set, Min: 1) (see [below for nested schema](#nestedblock--resource))
 
 ### Optional
 
-- **auth_type** (String) The type of authentication the service uses, e.g. AWS4
-- **job_profile_ids** (List of String) The list of IDs for job profiles that can be processed by this service. If the service does not process jobs, this should be empty.
-- **job_type** (String) The type of job the service processes, if any. Most MCMA services will handle some kind of job, but not all of them have to.
+- `auth_type` (String) The type of authentication the service uses, e.g. AWS4
+- `job_profile_ids` (List of String) The list of IDs for job profiles that can be processed by this service. If the service does not process jobs, this should be empty.
+- `job_type` (String) The type of job the service processes, if any. Most MCMA services will handle some kind of job, but not all of them have to.
 
 ### Read-Only
 
-- **date_created** (String) The date and time at which the service data was created.
-- **date_modified** (String) The date and time at which the service data was last modified.
-- **id** (String) The ID of the service. MCMA IDs are always absolute urls.
-- **type** (String) The MCMA type of resource. This value will always be 'Service'.
+- `date_created` (String) The date and time at which the service data was created.
+- `date_modified` (String) The date and time at which the service data was last modified.
+- `id` (String) The ID of the service. MCMA IDs are always absolute urls.
+- `type` (String) The MCMA type of resource. This value will always be 'Service'.
 
 <a id="nestedblock--resource"></a>
 ### Nested Schema for `resource`
 
 Required:
 
-- **http_endpoint** (String) The url for the endpoint.
-- **resource_type** (String) The type of MCMA resource this endpoint handles.
+- `http_endpoint` (String) The url for the endpoint.
+- `resource_type` (String) The type of MCMA resource this endpoint handles.
 
 Optional:
 
-- **auth_type** (String) The type of authentication expected for this endpoint. This should only be specified if it is different than the auth type specified on the service.
+- `auth_type` (String) The type of authentication expected for this endpoint. This should only be specified if it is different than the auth type specified on the service.
 
 Read-Only:
 
-- **date_created** (String) The date and time at which the resource endpoint data was created.
-- **date_modified** (String) The date and time at which the resource endpoint data was last modified.
-- **id** (String) The ID of the resource endpoint. MCMA IDs are always absolute urls.
-- **type** (String) The MCMA type of resource. This value will always be 'ResourceEndpoint'.
+- `date_created` (String) The date and time at which the resource endpoint data was created.
+- `date_modified` (String) The date and time at which the resource endpoint data was last modified.
+- `id` (String) The ID of the resource endpoint. MCMA IDs are always absolute urls.
+- `type` (String) The MCMA type of resource. This value will always be 'ResourceEndpoint'.
 
 

@@ -15,28 +15,33 @@ func init() {
 	}
 }
 
-type authBlock struct {
-	Type                 string
-	Data                 map[string]string
-	UseForInitialization bool
+type aws4AuthBlock struct {
+	region    string
+	profile   string
+	accessKey string
+	secretKey string
 }
 
-func getProviderConfig(url string, authBlocks []authBlock) string {
+func getProviderConfig(servicesUrl string, servicesAuthType string, authBlocks []aws4AuthBlock) string {
 	providerConfig := "provider \"mcma\" {\n"
-	providerConfig += "  url = \"" + url + "\"\n"
+	providerConfig += "  services_url = \"" + servicesUrl + "\"\n"
+	if servicesAuthType != "" {
+		providerConfig += "  services_auth_type = \"" + servicesAuthType + "\"\n"
+	}
 	if authBlocks != nil && len(authBlocks) > 0 {
 		for _, authBlock := range authBlocks {
-			providerConfig += "  auth {\n"
-			providerConfig += "    type = \"" + authBlock.Type + "\"\n"
-			if authBlock.Data != nil {
-				providerConfig += "    data = {\n"
-				for key, val := range authBlock.Data {
-					providerConfig += "      " + key + " = \"" + val + "\"\n"
-				}
-				providerConfig += "    }\n"
+			providerConfig += "  aws4_auth {\n"
+			if authBlock.region != "" {
+				providerConfig += "    region = \"" + authBlock.region + "\"\n"
 			}
-			if authBlock.UseForInitialization {
-				providerConfig += "    use_for_initialization = true\n"
+			if authBlock.profile != "" {
+				providerConfig += "    profile = \"" + authBlock.profile + "\"\n"
+			}
+			if authBlock.accessKey != "" {
+				providerConfig += "    access_key = \"" + authBlock.accessKey + "\"\n"
+			}
+			if authBlock.secretKey != "" {
+				providerConfig += "    secret_key = \"" + authBlock.secretKey + "\"\n"
 			}
 			providerConfig += "  }\n"
 		}
@@ -45,17 +50,13 @@ func getProviderConfig(url string, authBlocks []authBlock) string {
 	return providerConfig
 }
 
-func getAwsProfileProviderConfig(url string, region string, profile string) string {
-	awsData := make(map[string]string)
-	awsData["region"] = region
-	awsData["profile"] = profile
-	authBlocks := make([]authBlock, 1)
-	authBlocks[0] = authBlock{
-		"aws4",
-		awsData,
-		true,
+func getAwsProfileProviderConfig(servicesUrl string, region string, profile string) string {
+	authBlocks := make([]aws4AuthBlock, 1)
+	authBlocks[0] = aws4AuthBlock{
+		region:  region,
+		profile: profile,
 	}
-	return getProviderConfig(url, authBlocks)
+	return getProviderConfig(servicesUrl, "", authBlocks)
 }
 
 func getAwsProfileProviderConfigFromEnvVars() string {
@@ -63,5 +64,5 @@ func getAwsProfileProviderConfigFromEnvVars() string {
 }
 
 func getKubernetesProviderConfigFromEnvVars() string {
-	return getProviderConfig(os.Getenv("MCMA_KUBERNETES_SERVICES_URL"), nil)
+	return getProviderConfig(os.Getenv("MCMA_KUBERNETES_SERVICES_URL"), "", nil)
 }

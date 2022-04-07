@@ -2,6 +2,7 @@ package mcma
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"os"
 
 	mcma "github.com/ebu/mcma-libraries-go/client"
 )
@@ -10,6 +11,13 @@ func GetAWS4Authenticator(authData map[string]interface{}) (mcma.Authenticator, 
 	region, d := GetAuthDataString(authData, "region", false)
 	if d != nil {
 		return nil, d
+	}
+
+	if region == "" {
+		region = os.Getenv("AWS_REGION")
+		if region == "" {
+			return nil, diag.Errorf("region not specified and AWS_REGION environment variable not set")
+		}
 	}
 
 	accessKey, d := GetAuthDataString(authData, "access_key", false)

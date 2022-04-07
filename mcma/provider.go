@@ -2,10 +2,10 @@ package mcma
 
 import (
 	"context"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	mcma "github.com/ebu/mcma-libraries-go/client"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func init() {
@@ -15,30 +15,39 @@ func init() {
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"url": {
+			"services_url": {
 				Type:        schema.TypeString,
 				Description: "The url to the services endpoint of the MCMA Service Registry",
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("MCMA_SERVICES_URL", nil),
+				Required:    true,
 			},
-			"auth": {
+			"services_auth_type": {
+				Type:        schema.TypeString,
+				Description: "The auth type to use for the services endpoint of the MCMA Service Registry",
+				Optional:    true,
+			},
+			"aws4_auth": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"type": {
+						"region": {
 							Type:        schema.TypeString,
-							Description: "The type of authentication to use",
-							Required:    true,
-						},
-						"data": {
-							Type:        schema.TypeMap,
-							Description: "Data used by this authentication type, e.g. keys, profile names, etc",
+							Description: "The AWS region to use for authentication",
 							Optional:    true,
 						},
-						"use_for_initialization": {
-							Type:        schema.TypeBool,
-							Description: "Indicates if this auth type should be used to initialize the provider with service data",
+						"profile": {
+							Type:        schema.TypeString,
+							Description: "The AWS profile to use for authentication",
+							Optional:    true,
+						},
+						"access_key": {
+							Type:        schema.TypeString,
+							Description: "The AWS access key to use for authentication. Requires that secret_key also be specified",
+							Optional:    true,
+						},
+						"secret_key": {
+							Type:        schema.TypeString,
+							Description: "The AWS secret key to use for authentication. Requires that access_key also be specified",
 							Optional:    true,
 						},
 					},
@@ -57,9 +66,31 @@ func Provider() *schema.Provider {
 	}
 }
 
+func addAuthToMap(
+	authMap map[string]mcma.Authenticator,
+	resourceData *schema.ResourceData,
+	authType string,
+	authFactory func(map[string]interface{}) (mcma.Authenticator, diag.Diagnostics),
+) diag.Diagnostics {
+	blocks := resourceData.Get(authType + "_auth").(*schema.Set).List()
+	switch len(blocks) {
+	case 0:
+		return nil
+	case 1:
+		authenticator, d := authFactory(blocks[0].(map[string]interface{}))
+		if d != nil {
+			return d
+		}
+		authMap[authType] = authenticator
+		return nil
+	default:
+		return diag.Errorf("only 1 %s_auth block allowed", authType)
+	}
+}
+
 func configure(d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	url := d.Get("url").(string)
-	if url == "" {
+	servicesUrl := d.Get("services_url").(string)
+	if servicesUrl == "" {
 		return nil, diag.Diagnostics{
 			diag.Diagnostic{
 				Severity: diag.Error,
@@ -68,31 +99,22 @@ func configure(d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 			},
 		}
 	}
+	servicesAuthType := d.Get("services_auth_type").(string)
 
-	var initAuthType string
 	authMap := make(map[string]mcma.Authenticator)
+	addAuthToMap(authMap, d, "aws4", GetAWS4Authenticator)
 
-	for _, raw := range d.Get("auth").(*schema.Set).List() {
-		auth := raw.(map[string]interface{})
-
-		authType := auth["type"].(string)
-		if ufi, found := auth["use_for_initialization"]; found && ufi.(bool) {
-			initAuthType = authType
+	if len(authMap) == 1 && servicesAuthType == "" {
+		for s := range authMap {
+			servicesAuthType = s
 		}
-
-		authenticator, d := GetAuthenticator(authType, auth)
-		if d != nil {
-			return nil, d
-		}
-
-		authMap[authType] = authenticator
 	}
 
 	var resourceManager mcma.ResourceManager
-	if len(initAuthType) != 0 {
-		resourceManager = mcma.NewResourceManager(url, initAuthType)
+	if len(servicesAuthType) != 0 {
+		resourceManager = mcma.NewResourceManager(servicesUrl, servicesAuthType)
 	} else {
-		resourceManager = mcma.NewResourceManagerNoAuth(url)
+		resourceManager = mcma.NewResourceManagerNoAuth(servicesUrl)
 	}
 
 	for key, a := range authMap {

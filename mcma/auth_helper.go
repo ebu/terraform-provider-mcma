@@ -4,30 +4,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"reflect"
-	"strings"
-
-	mcma "github.com/ebu/mcma-libraries-go/client"
 )
-
-func GetAuthenticator(authType string, auth map[string]interface{}) (mcma.Authenticator, diag.Diagnostics) {
-	var authData map[string]interface{}
-	if ad, found := auth["data"]; found {
-		authData = ad.(map[string]interface{})
-	}
-
-	switch strings.ToLower(authType) {
-	case "aws4":
-		return GetAWS4Authenticator(authData)
-	default:
-		return nil, diag.Diagnostics{
-			diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  "Unsupported auth type",
-				Detail:   fmt.Sprintf("The provider contains an 'auth' block that specifies unsupported auth type '%s'", authType),
-			},
-		}
-	}
-}
 
 func GetAuthDataString(authData map[string]interface{}, key string, required bool) (string, diag.Diagnostics) {
 	var value string

@@ -29,11 +29,11 @@ resource "mcma_resource" "bm_content" {
 
 ### Required
 
-- **resource_json** (String) The JSON of the object to be created
-- **type** (String) The MCMA type of resource.
+- `resource_json` (String) The JSON of the object to be created
+- `type` (String) The MCMA type of resource.
 
 ### Read-Only
 
-- **id** (String) The ID of the service. MCMA IDs are always absolute urls.
+- `id` (String) The ID of the service. MCMA IDs are always absolute urls.
 
 

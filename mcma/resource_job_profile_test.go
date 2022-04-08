@@ -13,7 +13,6 @@ import (
 )
 
 func TestAccMcmaJobProfile_basic(t *testing.T) {
-	var jobProfile mcmamodel.JobProfile
 	profileName := acctest.RandStringFromCharSet(5, acctest.CharSetAlpha)
 	createTestCase := func(providerConfig string) resource.TestCase {
 		return resource.TestCase{
@@ -25,7 +24,15 @@ func TestAccMcmaJobProfile_basic(t *testing.T) {
 				{
 					Config: testAccountMcmaJobProfile(profileName, providerConfig),
 					Check: resource.ComposeTestCheckFunc(
-						testAccCheckJobProfileExists("mcma_job_profile.job_profile_"+profileName, &jobProfile),
+						testAccCheckJobProfileExists("mcma_job_profile.job_profile_" + profileName),
+					),
+				},
+				{
+					Config: testAccountMcmaJobProfile_multiple(profileName, providerConfig),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckJobProfileExists("mcma_job_profile.job_profile_"+profileName+"_1"),
+						testAccCheckJobProfileExists("mcma_job_profile.job_profile_"+profileName+"_2"),
+						testAccCheckJobProfileExists("mcma_job_profile.job_profile_"+profileName+"_3"),
 					),
 				},
 			},
@@ -90,7 +97,88 @@ resource "mcma_job_profile" "job_profile_%s" {
 `, providerConfig, profileName, profileName)
 }
 
-func testAccCheckJobProfileExists(resourceName string, jobProfile *mcmamodel.JobProfile) resource.TestCheckFunc {
+func testAccountMcmaJobProfile_multiple(profileName string, providerConfig string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "mcma_job_profile" "job_profile_%s_1" {
+  name = "%s_1"
+  input_parameter {
+	name = "param1"
+	type = "string"
+  }
+  input_parameter {
+	name = "param2"
+	type = "number"
+	optional = true
+  }
+  output_parameter {
+	name = "outparam1"
+	type = "string"
+  }
+  output_parameter {
+	name = "outparam2"
+	type = "number"
+  }
+  custom_properties = {
+	customprop1 = "customprop1val"
+	customprop2 = "customprop2val"
+  }
+}
+
+resource "mcma_job_profile" "job_profile_%s_2" {
+  name = "%s_2"
+  input_parameter {
+	name = "param3"
+	type = "string"
+  }
+  input_parameter {
+	name = "param4"
+	type = "number"
+	optional = true
+  }
+  output_parameter {
+	name = "outparam3"
+	type = "string"
+  }
+  output_parameter {
+	name = "outparam4"
+	type = "number"
+  }
+  custom_properties = {
+	customprop1 = "customprop3val"
+	customprop2 = "customprop4val"
+  }
+}
+
+resource "mcma_job_profile" "job_profile_%s_3" {
+  name = "%s_3"
+  input_parameter {
+	name = "param5"
+	type = "string"
+  }
+  input_parameter {
+	name = "param6"
+	type = "number"
+	optional = true
+  }
+  output_parameter {
+	name = "outparam5"
+	type = "string"
+  }
+  output_parameter {
+	name = "outparam6"
+	type = "number"
+  }
+  custom_properties = {
+	customprop1 = "customprop5val"
+	customprop2 = "customprop6val"
+  }
+}
+`, providerConfig, profileName, profileName, profileName, profileName, profileName, profileName)
+}
+
+func testAccCheckJobProfileExists(resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
@@ -107,8 +195,6 @@ func testAccCheckJobProfileExists(resourceName string, jobProfile *mcmamodel.Job
 		if p == nil {
 			return fmt.Errorf("job profile with ID %s not found", rs.Primary.ID)
 		}
-		pImpl := p.(mcmamodel.JobProfile)
-		*jobProfile = pImpl
 		return nil
 	}
 }

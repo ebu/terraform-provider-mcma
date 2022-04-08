@@ -3,7 +3,7 @@ module github.com/ebu/terraform-provider-mcma
 go 1.18
 
 require (
-	github.com/ebu/mcma-libraries-go v0.0.0-20220405141242-616cfd9dac21
+	github.com/ebu/mcma-libraries-go v0.0.1
 	github.com/hashicorp/terraform-plugin-docs v0.7.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.13.0
 )

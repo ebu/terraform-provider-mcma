@@ -93,8 +93,8 @@ func configure(d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	if servicesUrl == "" {
 		return nil, diag.Diagnostics{
 			diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  "Unable to create MCMA ResourceManager",
+				Severity: diag.Warning,
+				Summary:  "ResourceManager not initialized.",
 				Detail:   "Url for MCMA service registry was not provided, and the MCMA_SERVICES_URL environment variable is not set.",
 			},
 		}

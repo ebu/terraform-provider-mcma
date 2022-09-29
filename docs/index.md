@@ -58,4 +58,4 @@ Optional:
 - `access_key` (String) The AWS access key to use for authentication. Requires that secret_key also be specified
 - `profile` (String) The AWS profile to use for authentication
 - `region` (String) The AWS region to use for authentication
-- `secret_key` (Boolean) The AWS secret key to use for authentication. Requires that access_key also be specified
+- `secret_key` (String) The AWS secret key to use for authentication. Requires that access_key also be specified

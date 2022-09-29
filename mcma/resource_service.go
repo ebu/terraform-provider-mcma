@@ -7,7 +7,6 @@ import (
 	"reflect"
 	"time"
 
-	mcmaclient "github.com/ebu/mcma-libraries-go/client"
 	mcmamodel "github.com/ebu/mcma-libraries-go/model"
 )
 
@@ -121,7 +120,7 @@ func getServiceFromResourceData(d *schema.ResourceData) mcmamodel.Service {
 			Type:         "ResourceEndpoint",
 			ResourceType: resource["resource_type"].(string),
 			HttpEndpoint: resource["http_endpoint"].(string),
-			AuthType:     &authType,
+			AuthType:     authType,
 		})
 	}
 
@@ -142,7 +141,10 @@ func getServiceFromResourceData(d *schema.ResourceData) mcmamodel.Service {
 }
 
 func resourceServiceRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	resourceManager := m.(*mcmaclient.ResourceManager)
+	resourceManager, di := getResourceManager(m)
+	if di != nil {
+		return di
+	}
 
 	serviceId := d.Id()
 	resource, err := resourceManager.Get(reflect.TypeOf(mcmamodel.Service{}), serviceId)
@@ -150,7 +152,7 @@ func resourceServiceRead(_ context.Context, d *schema.ResourceData, m interface{
 		return diag.Errorf("error getting service with id %s: %s", serviceId, err)
 	}
 	if resource == nil {
-		return diag.Errorf("service with id %s not found", serviceId)
+		return diag.Diagnostics{}
 	}
 
 	service := resource.(mcmamodel.Service)
@@ -180,7 +182,10 @@ func resourceServiceRead(_ context.Context, d *schema.ResourceData, m interface{
 }
 
 func resourceServiceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	resourceManager := m.(*mcmaclient.ResourceManager)
+	resourceManager, di := getResourceManager(m)
+	if di != nil {
+		return di
+	}
 
 	service := getServiceFromResourceData(d)
 	createdResource, err := resourceManager.Create(service)
@@ -195,7 +200,10 @@ func resourceServiceCreate(ctx context.Context, d *schema.ResourceData, m interf
 }
 
 func resourceServiceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	resourceManager := m.(*mcmaclient.ResourceManager)
+	resourceManager, di := getResourceManager(m)
+	if di != nil {
+		return di
+	}
 
 	service := getServiceFromResourceData(d)
 	service.Id = d.Id()
@@ -209,7 +217,10 @@ func resourceServiceUpdate(ctx context.Context, d *schema.ResourceData, m interf
 }
 
 func resourceServiceDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	resourceManager := m.(*mcmaclient.ResourceManager)
+	resourceManager, di := getResourceManager(m)
+	if di != nil {
+		return di
+	}
 
 	err := resourceManager.Delete(reflect.TypeOf(mcmamodel.Service{}), d.Id())
 	if err != nil {

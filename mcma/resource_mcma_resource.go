@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-
-	mcmaclient "github.com/ebu/mcma-libraries-go/client"
 )
 
 func resourceMcmaResource() *schema.Resource {
@@ -55,7 +53,10 @@ func getMcmaResourceFromResourceData(d *schema.ResourceData) (map[string]interfa
 }
 
 func resourceMcmaResourceRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	resourceManager := m.(*mcmaclient.ResourceManager)
+	resourceManager, di := getResourceManager(m)
+	if di != nil {
+		return di
+	}
 
 	resourceType := d.Get("type").(string)
 	resourceId := d.Id()
@@ -64,7 +65,7 @@ func resourceMcmaResourceRead(_ context.Context, d *schema.ResourceData, m inter
 		return diag.Errorf("error getting resource of type %s with id %s: %s", resourceType, resourceId, err)
 	}
 	if resource == nil {
-		return diag.Errorf("resource with type %s and id %s not found", resourceType, resourceId)
+		return diag.Diagnostics{}
 	}
 
 	_ = d.Set("type", resource["@type"])
@@ -85,7 +86,10 @@ func resourceMcmaResourceRead(_ context.Context, d *schema.ResourceData, m inter
 }
 
 func resourceMcmaResourceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	resourceManager := m.(*mcmaclient.ResourceManager)
+	resourceManager, di := getResourceManager(m)
+	if di != nil {
+		return di
+	}
 
 	resource, err := getMcmaResourceFromResourceData(d)
 	if err != nil {
@@ -104,7 +108,10 @@ func resourceMcmaResourceCreate(ctx context.Context, d *schema.ResourceData, m i
 }
 
 func resourceMcmaResourceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	resourceManager := m.(*mcmaclient.ResourceManager)
+	resourceManager, di := getResourceManager(m)
+	if di != nil {
+		return di
+	}
 
 	resource, err := getMcmaResourceFromResourceData(d)
 	if err != nil {
@@ -120,7 +127,10 @@ func resourceMcmaResourceUpdate(ctx context.Context, d *schema.ResourceData, m i
 }
 
 func resourceMcmaResourceDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	resourceManager := m.(*mcmaclient.ResourceManager)
+	resourceManager, di := getResourceManager(m)
+	if di != nil {
+		return di
+	}
 
 	err := resourceManager.DeleteResource(d.Get("type").(string), d.Id())
 	if err != nil {

@@ -7,7 +7,6 @@ import (
 	"reflect"
 	"time"
 
-	mcmaclient "github.com/ebu/mcma-libraries-go/client"
 	mcmamodel "github.com/ebu/mcma-libraries-go/model"
 )
 
@@ -138,7 +137,11 @@ func getJobProfileFromResourceData(d *schema.ResourceData) mcmamodel.JobProfile 
 }
 
 func resourceJobProfileRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	resourceManager := m.(*mcmaclient.ResourceManager)
+	println("resourceJobProfileRead")
+	resourceManager, di := getResourceManager(m)
+	if di != nil {
+		return di
+	}
 
 	jobProfileId := d.Id()
 	resource, err := resourceManager.Get(reflect.TypeOf(mcmamodel.JobProfile{}), jobProfileId)
@@ -146,7 +149,7 @@ func resourceJobProfileRead(_ context.Context, d *schema.ResourceData, m interfa
 		return diag.Errorf("error getting job profile with id %s: %s", jobProfileId, err)
 	}
 	if resource == nil {
-		return diag.Errorf("job profile with id %s not found", jobProfileId)
+		return diag.Diagnostics{}
 	}
 
 	jobProfile := resource.(mcmamodel.JobProfile)
@@ -192,7 +195,11 @@ func resourceJobProfileRead(_ context.Context, d *schema.ResourceData, m interfa
 }
 
 func resourceJobProfileCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	resourceManager := m.(*mcmaclient.ResourceManager)
+	println("resourceJobProfileCreate")
+	resourceManager, di := getResourceManager(m)
+	if di != nil {
+		return di
+	}
 	jobProfile := getJobProfileFromResourceData(d)
 	createdResource, err := resourceManager.Create(jobProfile)
 	if err != nil {
@@ -206,7 +213,11 @@ func resourceJobProfileCreate(ctx context.Context, d *schema.ResourceData, m int
 }
 
 func resourceJobProfileUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	resourceManager := m.(*mcmaclient.ResourceManager)
+	println("resourceJobProfileUpdate")
+	resourceManager, di := getResourceManager(m)
+	if di != nil {
+		return di
+	}
 
 	jobProfile := getJobProfileFromResourceData(d)
 	jobProfile.Id = d.Id()
@@ -220,7 +231,11 @@ func resourceJobProfileUpdate(ctx context.Context, d *schema.ResourceData, m int
 }
 
 func resourceJobProfileDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	resourceManager := m.(*mcmaclient.ResourceManager)
+	println("resourceJobProfileDelete")
+	resourceManager, di := getResourceManager(m)
+	if di != nil {
+		return di
+	}
 
 	err := resourceManager.Delete(reflect.TypeOf(mcmamodel.JobProfile{}), d.Id())
 	if err != nil {

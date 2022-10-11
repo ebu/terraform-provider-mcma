@@ -29,6 +29,7 @@ func resourceJobProfile() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "The ID of the job profile. MCMA IDs are always absolute urls.",
 				Computed:    true,
+				ForceNew:    true,
 			},
 			"date_created": {
 				Type:        schema.TypeString,
@@ -137,7 +138,6 @@ func getJobProfileFromResourceData(d *schema.ResourceData) mcmamodel.JobProfile 
 }
 
 func resourceJobProfileRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	println("resourceJobProfileRead")
 	resourceManager, di := getResourceManager(m)
 	if di != nil {
 		return di
@@ -149,6 +149,7 @@ func resourceJobProfileRead(_ context.Context, d *schema.ResourceData, m interfa
 		return diag.Errorf("error getting job profile with id %s: %s", jobProfileId, err)
 	}
 	if resource == nil {
+		_ = d.Set("id", "")
 		return diag.Diagnostics{}
 	}
 
@@ -195,7 +196,6 @@ func resourceJobProfileRead(_ context.Context, d *schema.ResourceData, m interfa
 }
 
 func resourceJobProfileCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	println("resourceJobProfileCreate")
 	resourceManager, di := getResourceManager(m)
 	if di != nil {
 		return di
@@ -213,7 +213,6 @@ func resourceJobProfileCreate(ctx context.Context, d *schema.ResourceData, m int
 }
 
 func resourceJobProfileUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	println("resourceJobProfileUpdate")
 	resourceManager, di := getResourceManager(m)
 	if di != nil {
 		return di
@@ -231,7 +230,6 @@ func resourceJobProfileUpdate(ctx context.Context, d *schema.ResourceData, m int
 }
 
 func resourceJobProfileDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	println("resourceJobProfileDelete")
 	resourceManager, di := getResourceManager(m)
 	if di != nil {
 		return di

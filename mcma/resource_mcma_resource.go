@@ -27,6 +27,7 @@ func resourceMcmaResource() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "The ID of the service. MCMA IDs are always absolute urls.",
 				Computed:    true,
+				ForceNew:    true,
 			},
 			"resource_json": {
 				Type:        schema.TypeString,
@@ -65,6 +66,7 @@ func resourceMcmaResourceRead(_ context.Context, d *schema.ResourceData, m inter
 		return diag.Errorf("error getting resource of type %s with id %s: %s", resourceType, resourceId, err)
 	}
 	if resource == nil {
+		_ = d.Set("id", "")
 		return diag.Diagnostics{}
 	}
 

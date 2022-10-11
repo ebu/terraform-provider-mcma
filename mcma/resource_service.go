@@ -29,6 +29,7 @@ func resourceService() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "The ID of the service. MCMA IDs are always absolute urls.",
 				Computed:    true,
+				ForceNew:    true,
 			},
 			"date_created": {
 				Type:        schema.TypeString,
@@ -152,13 +153,14 @@ func resourceServiceRead(_ context.Context, d *schema.ResourceData, m interface{
 		return diag.Errorf("error getting service with id %s: %s", serviceId, err)
 	}
 	if resource == nil {
+		_ = d.Set("id", "")
 		return diag.Diagnostics{}
 	}
 
 	service := resource.(mcmamodel.Service)
 
-	_ = d.Set("type", service.Type)
 	_ = d.Set("id", service.Id)
+	_ = d.Set("type", service.Type)
 	_ = d.Set("date_created", service.DateCreated.Format(time.RFC3339))
 	_ = d.Set("date_modified", service.DateModified.Format(time.RFC3339))
 	_ = d.Set("name", service.Name)

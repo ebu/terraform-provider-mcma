@@ -119,7 +119,6 @@ func configure(d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 }
 
 func getResourceManager(m interface{}) (*mcmaclient.ResourceManager, diag.Diagnostics) {
-	println("getResourceManager")
 	if m == nil {
 		return nil, diag.Diagnostics{
 			diag.Diagnostic{

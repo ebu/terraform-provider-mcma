@@ -209,6 +209,12 @@ func resourceServiceUpdate(ctx context.Context, d *schema.ResourceData, m interf
 	service := getServiceFromResourceData(d)
 	service.Id = d.Id()
 
+	if dc, err := time.Parse(time.RFC3339, d.Get("date_created").(string)); err == nil {
+		service.DateCreated = dc
+	} else {
+		service.DateCreated = time.Now().UTC()
+	}
+
 	_, err := resourceManager.Update(service)
 	if err != nil {
 		return diag.FromErr(err)

@@ -221,6 +221,12 @@ func resourceJobProfileUpdate(ctx context.Context, d *schema.ResourceData, m int
 	jobProfile := getJobProfileFromResourceData(d)
 	jobProfile.Id = d.Id()
 
+	if dc, err := time.Parse(time.RFC3339, d.Get("date_created").(string)); err == nil {
+		jobProfile.DateCreated = dc
+	} else {
+		jobProfile.DateCreated = time.Now().UTC()
+	}
+
 	_, err := resourceManager.Update(jobProfile)
 	if err != nil {
 		return diag.FromErr(err)

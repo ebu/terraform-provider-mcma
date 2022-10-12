@@ -66,7 +66,7 @@ func resourceMcmaResourceRead(_ context.Context, d *schema.ResourceData, m inter
 		return diag.Errorf("error getting resource of type %s with id %s: %s", resourceType, resourceId, err)
 	}
 	if resource == nil {
-		_ = d.Set("id", "")
+		d.SetId("")
 		return diag.Diagnostics{}
 	}
 

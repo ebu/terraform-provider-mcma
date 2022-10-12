@@ -149,7 +149,7 @@ func resourceJobProfileRead(_ context.Context, d *schema.ResourceData, m interfa
 		return diag.Errorf("error getting job profile with id %s: %s", jobProfileId, err)
 	}
 	if resource == nil {
-		_ = d.Set("id", "")
+		d.SetId("")
 		return diag.Diagnostics{}
 	}
 

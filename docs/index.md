@@ -15,12 +15,12 @@ description: |-
 ```terraform
 # No auth
 provider "mcma" {
-  services_url = "https://service-registry-example.mcma.io/api/services"
+  service_registry_url = "https://service-registry-example.mcma.io/api/"
 }
 
 # AWS auth with profile
 provider "mcma" {
-  services_url = "https://service-registry-example.mcma.io/api/services"
+  service_registry_url = "https://service-registry-example.mcma.io/api/"
   aws4_auth {
     region  = "us-east-1"
     profile = "myprofile"
@@ -29,7 +29,7 @@ provider "mcma" {
 
 # AWS auth with keys
 provider "mcma" {
-  services_url = "https://service-registry-example.mcma.io/api/services"
+  service_registry_url = "https://service-registry-example.mcma.io/api/"
   aws4_auth {
     region     = "us-east-1"
     access_key = "accesskey"
@@ -43,12 +43,12 @@ provider "mcma" {
 
 ### Required
 
-- `services_url` (String) The url to the services endpoint of the MCMA Service Registry
+- `service_registry_url` (String) The url to the services endpoint of the MCMA Service Registry
 
 ### Optional
 
 - `aws4_auth` (Block Set) (see [below for nested schema](#nestedblock--aws4_auth))
-- `services_auth_type` (String) The auth type to use for the services endpoint of the MCMA Service Registry
+- `service_registry_auth_type` (String) The auth type to use for the services endpoint of the MCMA Service Registry
 
 <a id="nestedblock--aws4_auth"></a>
 ### Nested Schema for `aws4_auth`

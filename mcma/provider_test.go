@@ -1,8 +1,9 @@
 package mcma
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"os"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 var testAccProvider *schema.Provider
@@ -22,11 +23,11 @@ type aws4AuthBlock struct {
 	secretKey string
 }
 
-func getProviderConfig(servicesUrl string, servicesAuthType string, authBlocks []aws4AuthBlock) string {
+func getProviderConfig(serviceRegistryUrl string, serviceRegistryAuthType string, authBlocks []aws4AuthBlock) string {
 	providerConfig := "provider \"mcma\" {\n"
-	providerConfig += "  services_url = \"" + servicesUrl + "\"\n"
-	if servicesAuthType != "" {
-		providerConfig += "  services_auth_type = \"" + servicesAuthType + "\"\n"
+	providerConfig += "  service_registry_url = \"" + serviceRegistryUrl + "\"\n"
+	if serviceRegistryAuthType != "" {
+		serviceRegistryAuthType += "  service_registry_auth_type = \"" + serviceRegistryAuthType + "\"\n"
 	}
 	if authBlocks != nil && len(authBlocks) > 0 {
 		for _, authBlock := range authBlocks {
@@ -50,19 +51,19 @@ func getProviderConfig(servicesUrl string, servicesAuthType string, authBlocks [
 	return providerConfig
 }
 
-func getAwsProfileProviderConfig(servicesUrl string, region string, profile string) string {
+func getAwsProfileProviderConfig(serviceRegistryUrl string, region string, profile string) string {
 	authBlocks := make([]aws4AuthBlock, 1)
 	authBlocks[0] = aws4AuthBlock{
 		region:  region,
 		profile: profile,
 	}
-	return getProviderConfig(servicesUrl, "", authBlocks)
+	return getProviderConfig(serviceRegistryUrl, "", authBlocks)
 }
 
 func getAwsProfileProviderConfigFromEnvVars() string {
-	return getAwsProfileProviderConfig(os.Getenv("MCMA_AWS_SERVICES_URL"), os.Getenv("MCMA_AWS_REGION"), os.Getenv("MCMA_AWS_PROFILE"))
+	return getAwsProfileProviderConfig(os.Getenv("MCMA_AWS_SERVICE_REGISTRY_URL"), os.Getenv("MCMA_AWS_REGION"), os.Getenv("MCMA_AWS_PROFILE"))
 }
 
 func getKubernetesProviderConfigFromEnvVars() string {
-	return getProviderConfig(os.Getenv("MCMA_KUBERNETES_SERVICES_URL"), "", nil)
+	return getProviderConfig(os.Getenv("MCMA_KUBERNETES_SERVICE_REGISTRY_URL"), "", nil)
 }

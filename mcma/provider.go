@@ -3,9 +3,10 @@ package mcma
 import (
 	"context"
 
-	mcmaclient "github.com/ebu/mcma-libraries-go/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	mcmaclient "github.com/ebu/mcma-libraries-go/client"
 )
 
 func init() {
@@ -15,12 +16,12 @@ func init() {
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"services_url": {
+			"service_registry_url": {
 				Type:        schema.TypeString,
 				Description: "The url to the services endpoint of the MCMA Service Registry",
 				Required:    true,
 			},
-			"services_auth_type": {
+			"service_registry_auth_type": {
 				Type:        schema.TypeString,
 				Description: "The auth type to use for the services endpoint of the MCMA Service Registry",
 				Optional:    true,
@@ -89,26 +90,26 @@ func addAuthToMap(
 }
 
 func configure(d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	servicesUrl := d.Get("services_url").(string)
-	if servicesUrl == "" {
+	serviceRegistryUrl := d.Get("service_registry_url").(string)
+	if serviceRegistryUrl == "" {
 		return nil, nil
 	}
-	servicesAuthType := d.Get("services_auth_type").(string)
+	serviceRegistryAuthType := d.Get("service_registry_auth_type").(string)
 
 	authMap := make(map[string]mcmaclient.Authenticator)
 	addAuthToMap(authMap, d, "aws4", GetAWS4Authenticator)
 
-	if len(authMap) == 1 && servicesAuthType == "" {
+	if len(authMap) == 1 && serviceRegistryAuthType == "" {
 		for s := range authMap {
-			servicesAuthType = s
+			serviceRegistryAuthType = s
 		}
 	}
 
 	var resourceManager mcmaclient.ResourceManager
-	if len(servicesAuthType) != 0 {
-		resourceManager = mcmaclient.NewResourceManager(servicesUrl, servicesAuthType)
+	if len(serviceRegistryAuthType) != 0 {
+		resourceManager = mcmaclient.NewResourceManager(serviceRegistryUrl, serviceRegistryAuthType)
 	} else {
-		resourceManager = mcmaclient.NewResourceManagerNoAuth(servicesUrl)
+		resourceManager = mcmaclient.NewResourceManagerNoAuth(serviceRegistryUrl)
 	}
 
 	for key, a := range authMap {
@@ -124,7 +125,7 @@ func getResourceManager(m interface{}) (*mcmaclient.ResourceManager, diag.Diagno
 			diag.Diagnostic{
 				Severity: diag.Error,
 				Summary:  "ResourceManager not initialized.",
-				Detail:   "Url for MCMA service registry was not provided, and the MCMA_SERVICES_URL environment variable is not set.",
+				Detail:   "Url for MCMA service registry was not provided, and the MCMA_SERVICE_REGISTRY_URL environment variable is not set.",
 			},
 		}
 	}

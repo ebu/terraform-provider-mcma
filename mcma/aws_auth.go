@@ -1,13 +1,14 @@
 package mcma
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"os"
 
-	mcma "github.com/ebu/mcma-libraries-go/client"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+
+	mcmaclient "github.com/ebu/mcma-libraries-go/client"
 )
 
-func GetAWS4Authenticator(authData map[string]interface{}) (mcma.Authenticator, diag.Diagnostics) {
+func GetAWS4Authenticator(authData map[string]interface{}) (mcmaclient.Authenticator, diag.Diagnostics) {
 	region, d := GetAuthDataString(authData, "region", false)
 	if d != nil {
 		return nil, d
@@ -34,7 +35,7 @@ func GetAWS4Authenticator(authData map[string]interface{}) (mcma.Authenticator, 
 		if d != nil {
 			return nil, d
 		}
-		return mcma.NewAWS4AuthenticatorFromKeys(accessKey, secretKey, sessionToken, region), nil
+		return mcmaclient.NewAWS4AuthenticatorFromKeys(accessKey, secretKey, sessionToken, region), nil
 	}
 
 	profile, d := GetAuthDataString(authData, "profile", false)
@@ -42,8 +43,8 @@ func GetAWS4Authenticator(authData map[string]interface{}) (mcma.Authenticator, 
 		return nil, d
 	}
 	if len(profile) > 0 {
-		return mcma.NewAWS4AuthenticatorFromProfile(profile, region), nil
+		return mcmaclient.NewAWS4AuthenticatorFromProfile(profile, region), nil
 	}
 
-	return mcma.NewAWS4AuthenticatorFromEnvVars(), nil
+	return mcmaclient.NewAWS4AuthenticatorFromEnvVars(), nil
 }

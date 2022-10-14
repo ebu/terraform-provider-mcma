@@ -2,8 +2,9 @@ package mcma
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"reflect"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
 func GetAuthDataString(authData map[string]interface{}, key string, required bool) (string, diag.Diagnostics) {

@@ -30,7 +30,7 @@ func TestAccMcmaJobProfile_basic(t *testing.T) {
 					),
 				},
 				{
-					Config: testAccountMcmaJobProfile_multiple(profileName, providerConfig),
+					Config: testAccountMcmaJobProfileMultiple(profileName, providerConfig),
 					Check: resource.ComposeTestCheckFunc(
 						testAccCheckJobProfileExists("mcma_job_profile.job_profile_"+profileName+"_1"),
 						testAccCheckJobProfileExists("mcma_job_profile.job_profile_"+profileName+"_2"),
@@ -91,7 +91,7 @@ resource "mcma_job_profile" "job_profile_%s" {
 	name = "outparam2"
 	type = "number"
   }
-  custom_properties = {
+  custom = {
 	customprop1 = "customprop1val"
 	customprop2 = "customprop2val"
   }
@@ -99,7 +99,7 @@ resource "mcma_job_profile" "job_profile_%s" {
 `, providerConfig, profileName, profileName)
 }
 
-func testAccountMcmaJobProfile_multiple(profileName string, providerConfig string) string {
+func testAccountMcmaJobProfileMultiple(profileName string, providerConfig string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -122,7 +122,7 @@ resource "mcma_job_profile" "job_profile_%s_1" {
 	name = "outparam2"
 	type = "number"
   }
-  custom_properties = {
+  custom = {
 	customprop1 = "customprop1val"
 	customprop2 = "customprop2val"
   }
@@ -147,7 +147,7 @@ resource "mcma_job_profile" "job_profile_%s_2" {
 	name = "outparam4"
 	type = "number"
   }
-  custom_properties = {
+  custom = {
 	customprop1 = "customprop3val"
 	customprop2 = "customprop4val"
   }
@@ -172,7 +172,7 @@ resource "mcma_job_profile" "job_profile_%s_3" {
 	name = "outparam6"
 	type = "number"
   }
-  custom_properties = {
+  custom = {
 	customprop1 = "customprop5val"
 	customprop2 = "customprop6val"
   }

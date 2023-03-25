@@ -20,7 +20,7 @@ resource "mcma_job_profile" "example" {
     type = "number"
   }
 
-  custom_properties = {
+  custom = {
     customprop1 = "customprop1val"
     customprop2 = "customprop2val"
   }

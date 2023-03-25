@@ -35,7 +35,7 @@ resource "mcma_job_profile" "example" {
     type = "number"
   }
 
-  custom_properties = {
+  custom = {
     customprop1 = "customprop1val"
     customprop2 = "customprop2val"
   }
@@ -51,7 +51,7 @@ resource "mcma_job_profile" "example" {
 
 ### Optional
 
-- `custom_properties` (Map of String) A collection of key-value pairs specifying additional properties for the job profile.
+- `custom` (Map of String) A collection of key-value pairs specifying additional properties for the job profile.
 - `input_parameter` (Block Set) A list of input parameters (name and type) that must be provided when running a job for this profile. (see [below for nested schema](#nestedblock--input_parameter))
 - `output_parameter` (Block Set) A list of output parameters (name and type) that will be set on the job when the service has finished. (see [below for nested schema](#nestedblock--output_parameter))
 

@@ -91,7 +91,7 @@ func resourceJobProfile() *schema.Resource {
 					},
 				},
 			},
-			"custom_properties": {
+			"custom": {
 				Type:        schema.TypeMap,
 				Description: "A collection of key-value pairs specifying additional properties for the job profile.",
 				Optional:    true,
@@ -134,7 +134,7 @@ func getJobProfileFromResourceData(d *schema.ResourceData) mcmamodel.JobProfile 
 		InputParameters:         inputParameters,
 		OutputParameters:        outputParameters,
 		OptionalInputParameters: optionalInputParameters,
-		CustomProperties:        d.Get("custom_properties").(map[string]interface{}),
+		Custom:                  d.Get("custom").(map[string]interface{}),
 	}
 }
 
@@ -161,7 +161,7 @@ func resourceJobProfileRead(_ context.Context, d *schema.ResourceData, m interfa
 	_ = d.Set("date_created", jobProfile.DateCreated.Format(time.RFC3339))
 	_ = d.Set("date_modified", jobProfile.DateModified.Format(time.RFC3339))
 	_ = d.Set("name", jobProfile.Name)
-	_ = d.Set("custom_properties", jobProfile.CustomProperties)
+	_ = d.Set("custom", jobProfile.Custom)
 
 	var inputParameters []map[string]interface{}
 	for _, inputParameter := range jobProfile.InputParameters {

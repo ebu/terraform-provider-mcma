@@ -31,7 +31,7 @@ func TestAccMcmaService_basic(t *testing.T) {
 					),
 				},
 				{
-					Config: testAccountMcmaService_updatedEndpoint(profileName, providerConfig),
+					Config: testAccountMcmaServiceUpdatedEndpoint(profileName, providerConfig),
 					Check: resource.ComposeTestCheckFunc(
 						testAccCheckServiceExists("mcma_service.service_"+profileName, &service),
 					),
@@ -92,7 +92,7 @@ resource "mcma_service" "service_%s" {
 `, providerConfig, serviceName, serviceName)
 }
 
-func testAccountMcmaService_updatedEndpoint(serviceName string, providerConfig string) string {
+func testAccountMcmaServiceUpdatedEndpoint(serviceName string, providerConfig string) string {
 	return fmt.Sprintf(`
 %s
 

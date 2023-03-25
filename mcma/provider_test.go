@@ -63,7 +63,3 @@ func getAwsProfileProviderConfig(serviceRegistryUrl string, region string, profi
 func getAwsProfileProviderConfigFromEnvVars() string {
 	return getAwsProfileProviderConfig(os.Getenv("MCMA_AWS_SERVICE_REGISTRY_URL"), os.Getenv("MCMA_AWS_REGION"), os.Getenv("MCMA_AWS_PROFILE"))
 }
-
-func getKubernetesProviderConfigFromEnvVars() string {
-	return getProviderConfig(os.Getenv("MCMA_KUBERNETES_SERVICE_REGISTRY_URL"), "", nil)
-}

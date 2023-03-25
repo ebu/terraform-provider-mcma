@@ -91,7 +91,7 @@ resource "mcma_job_profile" "job_profile_%s" {
 	name = "outparam2"
 	type = "number"
   }
-  custom = {
+  custom_properties = {
 	customprop1 = "customprop1val"
 	customprop2 = "customprop2val"
   }
@@ -122,7 +122,7 @@ resource "mcma_job_profile" "job_profile_%s_1" {
 	name = "outparam2"
 	type = "number"
   }
-  custom = {
+  custom_properties = {
 	customprop1 = "customprop1val"
 	customprop2 = "customprop2val"
   }
@@ -147,7 +147,7 @@ resource "mcma_job_profile" "job_profile_%s_2" {
 	name = "outparam4"
 	type = "number"
   }
-  custom = {
+  custom_properties = {
 	customprop1 = "customprop3val"
 	customprop2 = "customprop4val"
   }
@@ -172,7 +172,7 @@ resource "mcma_job_profile" "job_profile_%s_3" {
 	name = "outparam6"
 	type = "number"
   }
-  custom = {
+  custom_properties = {
 	customprop1 = "customprop5val"
 	customprop2 = "customprop6val"
   }

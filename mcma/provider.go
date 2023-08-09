@@ -54,6 +54,19 @@ func Provider() *schema.Provider {
 					},
 				},
 			},
+			"mcma_api_key_auth": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"api_key": {
+							Type:        schema.TypeString,
+							Description: "The MCMA API key (header = 'x-mcma-api-key') to use for authentication",
+							Required:    true,
+						},
+					},
+				},
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"mcma_service":     resourceService(),
@@ -71,9 +84,10 @@ func addAuthToMap(
 	authMap map[string]mcmaclient.Authenticator,
 	resourceData *schema.ResourceData,
 	authType string,
+	authKey string,
 	authFactory func(map[string]interface{}) (mcmaclient.Authenticator, diag.Diagnostics),
 ) diag.Diagnostics {
-	blocks := resourceData.Get(authType + "_auth").(*schema.Set).List()
+	blocks := resourceData.Get(authKey + "_auth").(*schema.Set).List()
 	switch len(blocks) {
 	case 0:
 		return nil
@@ -97,7 +111,8 @@ func configure(d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	serviceRegistryAuthType := d.Get("service_registry_auth_type").(string)
 
 	authMap := make(map[string]mcmaclient.Authenticator)
-	addAuthToMap(authMap, d, "aws4", GetAWS4Authenticator)
+	addAuthToMap(authMap, d, "AWS4", "aws4", GetAWS4Authenticator)
+	addAuthToMap(authMap, d, "McmaApiKey", "mcma_api_key", GetMcmaApiKeyAuthenticator)
 
 	if len(authMap) == 1 && serviceRegistryAuthType == "" {
 		for s := range authMap {

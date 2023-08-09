@@ -53,6 +53,12 @@ github.com/ebu/mcma-libraries-go v0.0.15 h1:+ruk6fGFtK6byTdLJLxnnqHz+mUp5Fgooepu
 github.com/ebu/mcma-libraries-go v0.0.15/go.mod h1:RnT/sTbg7ICp6NHDxyj/xX9xI+bqbcm9SUkPTIJnqs4=
 github.com/ebu/mcma-libraries-go v0.0.16 h1:NKmqnMlqGGrhhktzZ9/5coYVqp1kjnSRNXy00zccSZc=
 github.com/ebu/mcma-libraries-go v0.0.16/go.mod h1:RnT/sTbg7ICp6NHDxyj/xX9xI+bqbcm9SUkPTIJnqs4=
+github.com/ebu/mcma-libraries-go v0.0.17 h1:dX7AFX1nIPkoM/CYXGb9fXNBFtY/TayJv69FvEjRIgA=
+github.com/ebu/mcma-libraries-go v0.0.17/go.mod h1:RnT/sTbg7ICp6NHDxyj/xX9xI+bqbcm9SUkPTIJnqs4=
+github.com/ebu/mcma-libraries-go v0.0.18 h1:Bji40o9TY62lOCbOnhBwVnUKL8r8y+uP071m1ao0EaQ=
+github.com/ebu/mcma-libraries-go v0.0.18/go.mod h1:RnT/sTbg7ICp6NHDxyj/xX9xI+bqbcm9SUkPTIJnqs4=
+github.com/ebu/mcma-libraries-go v0.0.19 h1:O1lhCj1eFLbwUOOIO9sR8JUZ2SsXUFEgvXtl0n+WKfw=
+github.com/ebu/mcma-libraries-go v0.0.19/go.mod h1:RnT/sTbg7ICp6NHDxyj/xX9xI+bqbcm9SUkPTIJnqs4=
 github.com/emirpasic/gods v1.12.0 h1:QAUIPSaCu4G+POclxeqb3F+WPpdKqFGlw36+yOzGlrg=
 github.com/emirpasic/gods v1.12.0/go.mod h1:YfzfFFoVP/catgzJb4IKIqXjX78Ha8FMSDh3ymbK86o=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=

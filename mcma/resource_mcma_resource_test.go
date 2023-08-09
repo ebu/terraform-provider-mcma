@@ -31,7 +31,7 @@ func TestAccMcmaResource_basic(t *testing.T) {
 			},
 		}
 	}
-	resource.Test(t, createTestCase(getAwsProfileProviderConfigFromEnvVars()))
+	resource.Test(t, createTestCase(getMcmaApiKeyProviderConfigFromEnvVars()))
 }
 
 func testAccCheckMcmaResourceDestroy(s *terraform.State) error {

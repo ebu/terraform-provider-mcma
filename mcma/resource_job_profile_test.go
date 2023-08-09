@@ -41,7 +41,7 @@ func TestAccMcmaJobProfile_basic(t *testing.T) {
 		}
 	}
 	//resource.Test(t, createTestCase(getKubernetesProviderConfigFromEnvVars()))
-	resource.Test(t, createTestCase(getAwsProfileProviderConfigFromEnvVars()))
+	resource.Test(t, createTestCase(getMcmaApiKeyProviderConfigFromEnvVars()))
 }
 
 func testAccCheckMcmaJobProfileDestroy(s *terraform.State) error {

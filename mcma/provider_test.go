@@ -16,6 +16,10 @@ func init() {
 	}
 }
 
+type authBlock interface {
+	GetText() string
+}
+
 type aws4AuthBlock struct {
 	region    string
 	profile   string
@@ -23,7 +27,38 @@ type aws4AuthBlock struct {
 	secretKey string
 }
 
-func getProviderConfig(serviceRegistryUrl string, serviceRegistryAuthType string, authBlocks []aws4AuthBlock) string {
+func (authBlock aws4AuthBlock) GetText() string {
+	authBlockText := "  aws4_auth {\n"
+	if authBlock.region != "" {
+		authBlockText += "    region = \"" + authBlock.region + "\"\n"
+	}
+	if authBlock.profile != "" {
+		authBlockText += "    profile = \"" + authBlock.profile + "\"\n"
+	}
+	if authBlock.accessKey != "" {
+		authBlockText += "    access_key = \"" + authBlock.accessKey + "\"\n"
+	}
+	if authBlock.secretKey != "" {
+		authBlockText += "    secret_key = \"" + authBlock.secretKey + "\"\n"
+	}
+	authBlockText += "  }\n"
+	return authBlockText
+}
+
+type mcmaApiKeyAuthBlock struct {
+	apiKey string
+}
+
+func (authBlock mcmaApiKeyAuthBlock) GetText() string {
+	authBlockText := "  mcma_api_key_auth {\n"
+	if authBlock.apiKey != "" {
+		authBlockText += "    api_key = \"" + authBlock.apiKey + "\"\n"
+	}
+	authBlockText += "  }\n"
+	return authBlockText
+}
+
+func getProviderConfig(serviceRegistryUrl string, serviceRegistryAuthType string, authBlocks []authBlock) string {
 	providerConfig := "provider \"mcma\" {\n"
 	providerConfig += "  service_registry_url = \"" + serviceRegistryUrl + "\"\n"
 	if serviceRegistryAuthType != "" {
@@ -31,20 +66,7 @@ func getProviderConfig(serviceRegistryUrl string, serviceRegistryAuthType string
 	}
 	if authBlocks != nil && len(authBlocks) > 0 {
 		for _, authBlock := range authBlocks {
-			providerConfig += "  aws4_auth {\n"
-			if authBlock.region != "" {
-				providerConfig += "    region = \"" + authBlock.region + "\"\n"
-			}
-			if authBlock.profile != "" {
-				providerConfig += "    profile = \"" + authBlock.profile + "\"\n"
-			}
-			if authBlock.accessKey != "" {
-				providerConfig += "    access_key = \"" + authBlock.accessKey + "\"\n"
-			}
-			if authBlock.secretKey != "" {
-				providerConfig += "    secret_key = \"" + authBlock.secretKey + "\"\n"
-			}
-			providerConfig += "  }\n"
+			providerConfig += authBlock.GetText()
 		}
 	}
 	providerConfig += "}\n"
@@ -52,7 +74,7 @@ func getProviderConfig(serviceRegistryUrl string, serviceRegistryAuthType string
 }
 
 func getAwsProfileProviderConfig(serviceRegistryUrl string, region string, profile string) string {
-	authBlocks := make([]aws4AuthBlock, 1)
+	authBlocks := make([]authBlock, 1)
 	authBlocks[0] = aws4AuthBlock{
 		region:  region,
 		profile: profile,
@@ -62,4 +84,16 @@ func getAwsProfileProviderConfig(serviceRegistryUrl string, region string, profi
 
 func getAwsProfileProviderConfigFromEnvVars() string {
 	return getAwsProfileProviderConfig(os.Getenv("MCMA_AWS_SERVICE_REGISTRY_URL"), os.Getenv("MCMA_AWS_REGION"), os.Getenv("MCMA_AWS_PROFILE"))
+}
+
+func getMcmaApiKeyProviderConfig(serviceRegistryUrl, apiKey string) string {
+	authBlocks := make([]authBlock, 1)
+	authBlocks[0] = mcmaApiKeyAuthBlock{
+		apiKey: apiKey,
+	}
+	return getProviderConfig(serviceRegistryUrl, "", authBlocks)
+}
+
+func getMcmaApiKeyProviderConfigFromEnvVars() string {
+	return getMcmaApiKeyProviderConfig(os.Getenv("MCMA_AWS_SERVICE_REGISTRY_URL"), os.Getenv("MCMA_API_KEY"))
 }

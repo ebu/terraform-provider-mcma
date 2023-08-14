@@ -95,5 +95,5 @@ func getMcmaApiKeyProviderConfig(serviceRegistryUrl, apiKey string) string {
 }
 
 func getMcmaApiKeyProviderConfigFromEnvVars() string {
-	return getMcmaApiKeyProviderConfig(os.Getenv("MCMA_AWS_SERVICE_REGISTRY_URL"), os.Getenv("MCMA_API_KEY"))
+	return getMcmaApiKeyProviderConfig(os.Getenv("MCMA_API_KEY_SERVICE_REGISTRY_URL"), os.Getenv("MCMA_API_KEY"))
 }

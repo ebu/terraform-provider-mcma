@@ -48,6 +48,7 @@ provider "mcma" {
 ### Optional
 
 - `aws4_auth` (Block Set) (see [below for nested schema](#nestedblock--aws4_auth))
+- `mcma_api_key_auth` (Block Set) (see [below for nested schema](#nestedblock--mcma_api_key_auth))
 - `service_registry_auth_type` (String) The auth type to use for the services endpoint of the MCMA Service Registry
 
 <a id="nestedblock--aws4_auth"></a>
@@ -59,3 +60,11 @@ Optional:
 - `profile` (String) The AWS profile to use for authentication
 - `region` (String) The AWS region to use for authentication
 - `secret_key` (String) The AWS secret key to use for authentication. Requires that access_key also be specified
+
+
+<a id="nestedblock--mcma_api_key_auth"></a>
+### Nested Schema for `mcma_api_key_auth`
+
+Required:
+
+- `api_key` (String) The MCMA API key (header = 'x-mcma-api-key') to use for authentication

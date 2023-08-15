@@ -21,3 +21,11 @@ provider "mcma" {
     secret_key = "secretkey"
   }
 }
+
+# MCMA API Key auth
+provider "mcma" {
+  service_registry_url = "https://service-registry-example.mcma.io/api/"
+  mcma_api_key_auth {
+    api_key = "abcd1234efgh5678"
+  }
+}
